@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import { Modal, Box, TextField, Button, Typography, IconButton } from "@mui/material";
 
-const BookingModal = ({ open, handleClose, locationName }) => {
+const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
   const [formData, setFormData] = useState({
     driverName: "",
     carNumber: "",
     fromTime: "",
     totalHours: "",
-    description: "",
+    email: "",
   });
 
   const handleChange = (e) => {
@@ -33,15 +33,25 @@ const BookingModal = ({ open, handleClose, locationName }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 400,
+          width: 500, // Increased width
           bgcolor: "background.paper",
           border: "2px solid #000",
           boxShadow: 24,
           p: 4,
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" component="div" sx={{ mb: 1 }}>
+        {/* Modal Heading */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{fontWeight : 'bold'}} component="div">
+            Book Parking Slot
+          </Typography>
+          <IconButton onClick={handleClose} color="error">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        
+        {/* Pre-populated Location and Slot Number */}
+        <Typography variant="body1" component="div" sx={{ mb: 2 }}>
           <Typography variant="body1" component="span">
             Location:
           </Typography>
@@ -50,13 +60,23 @@ const BookingModal = ({ open, handleClose, locationName }) => {
             component="span"
             sx={{ fontWeight: "bold", color: "blue" }}
           >
-            {` ${locationName}`}{" "}
+            {` ${locationName}`}
           </Typography>
         </Typography>
-          <IconButton onClick={handleClose} color="error">
-            <CloseIcon />
-          </IconButton>
-        </Box>
+        <Typography variant="body1" component="div">
+          <Typography variant="body1" component="span">
+            Slot Number:
+          </Typography>
+          <Typography
+            variant="body1"
+            component="span"
+            sx={{ fontWeight: "bold", color: "blue" }}
+          >
+            {` ${slotNumber}`} {/* Pre-populated field for slot number */}
+          </Typography>
+        </Typography>
+        
+        {/* Form Fields */}
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
@@ -73,6 +93,16 @@ const BookingModal = ({ open, handleClose, locationName }) => {
             label="Car Number"
             name="carNumber"
             value={formData.carNumber}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
             required
           />
@@ -96,16 +126,6 @@ const BookingModal = ({ open, handleClose, locationName }) => {
             value={formData.totalHours}
             onChange={handleChange}
             required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            multiline
-            rows={4}
           />
           <Button type="submit" variant="contained" color="primary" sx={{ mt: 1 }}>
             Submit
