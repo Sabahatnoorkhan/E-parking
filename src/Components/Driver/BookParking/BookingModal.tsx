@@ -1,23 +1,64 @@
-import React, { useState } from "react";
-import CloseIcon from '@mui/icons-material/Close';
-import { Modal, Box, TextField, Button, Typography, IconButton, Select, MenuItem } from "@mui/material";
-import { IParkingInfo } from "../../../Interfaces";
+import React, { useState, useEffect } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  Modal,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { IParkingInfo, IVehicle, PageState } from "../../../Interfaces";
 import { useAuth } from "../../../AuthContext.tsx";
+import { getDropdownOptions } from "../../../Helpers/index.ts";
+import * as bookParkingAPI from "../../../APIs/bookParking.ts";
+import { toast } from "react-toastify";
+import * as vehicleAPI from "../../../APIs/driverVehicle.ts";
+import { Spinner } from "react-bootstrap";
 
 interface IProps {
   open: boolean;
   handleClose: () => void;
-  selectedParking: IParkingInfo
+  selectedParking: IParkingInfo;
+  successCallBack: () => void;
 }
 
-const BookingModal: React.FC<IProps> = ({ open, handleClose, selectedParking }) => {
-  const {user} =  useAuth();
-  const { name, available_slots, id } = selectedParking
+const BookingModal: React.FC<IProps> = ({
+  open,
+  handleClose,
+  selectedParking,
+  successCallBack,
+}) => {
+  const { user } = useAuth();
+  const [isBooking, setIsBooking] = useState(false);
+  const [getVehicleState, setGetVehicleState] = useState<PageState>("Initial");
+  const [vehicles, setVehicles] = useState<IVehicle[]>([]);
+  const { name, available_slots, id } = selectedParking;
   const [formData, setFormData] = useState({
     vehicle: "",
     fromTime: "",
     totalHours: "",
   });
+
+  const getVehicles = () => {
+    setGetVehicleState("Loading");
+    vehicleAPI.GET.service(user?.user_id!)
+      .then(({ data }) => {
+        setVehicles(data);
+        setGetVehicleState("Data");
+      })
+      .catch(() => {
+        setGetVehicleState("Error");
+      });
+  };
+
+  useEffect(() => {
+    getVehicles();
+  }, []);
+
+  const vehicleDropdownData = getDropdownOptions(vehicles);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,12 +71,24 @@ const BookingModal: React.FC<IProps> = ({ open, handleClose, selectedParking }) 
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
-      user: user?.user_id,
+      user: user?.user_id!,
       parking_space: id,
       start_time: formData.fromTime,
-      end_time: formData.fromTime
-    }
-    console.log(formData);
+      end_time: formData.fromTime,
+      vehicle: formData.vehicle,
+    };
+    setIsBooking(true);
+    bookParkingAPI.POST.service(payload)
+      .then(() => {
+        setIsBooking(false);
+        toast.success("Parking booked successfully");
+        handleClose();
+        successCallBack();
+      })
+      .catch(() => {
+        setIsBooking(false);
+        toast.error("Something went wrong");
+      });
   };
 
   return (
@@ -53,8 +106,15 @@ const BookingModal: React.FC<IProps> = ({ open, handleClose, selectedParking }) 
           p: 4,
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{fontWeight : 'bold'}} component="div">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "bold" }} component="div">
             Book Parking Slot
           </Typography>
           <IconButton onClick={handleClose} color="error">
@@ -86,23 +146,42 @@ const BookingModal: React.FC<IProps> = ({ open, handleClose, selectedParking }) 
             {` ${available_slots}`}
           </Typography>
         </Typography>
-        
+
         {/* Form Fields */}
         <form onSubmit={handleSubmit}>
-        <Select
-        labelId="vehicle-select-label"
-        value={formData.vehicle}
-        onChange={handleChange}
-        label="Select Vehicle"
-        name="vehicle"
-        required
-      >
-        {vehicles.map((vehicle) => (
-          <MenuItem key={vehicle.id} value={vehicle.id}>
-            {vehicle.car_model}
-          </MenuItem>
-        ))}
-      </Select>
+          {getVehicleState === "Loading" ? (
+            <div className="d-flex justify-content-center mb-4">
+              <Spinner animation="border" variant="primary" />
+            </div>
+          ) : getVehicleState === "Error" ? (
+            <Button
+            fullWidth
+              variant="contained"
+              color="error"
+              sx={{ mt: 1 }}
+              onClick={getVehicles}
+            >
+              Retry Getting Vehicles
+            </Button>
+          ) : (
+            <Select
+              fullWidth
+              margin="dense"
+              labelId="vehicle-select-label"
+              value={formData.vehicle}
+              onChange={handleChange}
+              label="Select Vehicle"
+              name="vehicle"
+              required
+              sx={{ marginY: "4px" }}
+            >
+              {vehicleDropdownData.map((vehicle, index) => (
+                <MenuItem key={index} value={vehicle.value}>
+                  {vehicle.label}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
           <TextField
             fullWidth
             margin="normal"
@@ -124,9 +203,21 @@ const BookingModal: React.FC<IProps> = ({ open, handleClose, selectedParking }) 
             onChange={handleChange}
             required
           />
-          <Button type="submit" variant="contained" color="primary" sx={{ mt: 1 }}>
-            Submit
-          </Button>
+          {isBooking ? (
+            <div className="d-flex justify-content-center mb-4">
+              <Spinner animation="border" variant="primary" />
+            </div>
+          ) : (
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ mt: 1 }}
+              disabled={getVehicleState === 'Loading' || getVehicleState === 'Error'}
+            >
+              Submit
+            </Button>
+          )}
         </form>
       </Box>
     </Modal>

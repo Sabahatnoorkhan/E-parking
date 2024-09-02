@@ -15,9 +15,9 @@ export interface IParkingInfo {
   location: string;
   total_slots: number;
   available_slots: number;
-  price: string;
-  longitude: string;
-  latitude: string;
+  price: number;
+  longitude: number;
+  latitude: number;
   owner: string;
 }
 

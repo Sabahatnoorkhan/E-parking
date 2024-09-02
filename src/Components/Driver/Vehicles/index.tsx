@@ -12,6 +12,7 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import { toast } from "react-toastify";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import { IVehicle, PageState } from "../../../Interfaces/index.ts";
 import ErrorPage from "../../ErrorState.tsx";
@@ -20,12 +21,13 @@ import EmptyState from "../../EmptyState.tsx";
 import { useAuth } from "../../../AuthContext.tsx";
 import AddVehicleModal from "./AddVehicleModal.tsx";
 import * as vehicleAPI from "../../../APIs/driverVehicle.ts";
-import { toast } from "react-toastify";
+import { Spinner } from "react-bootstrap";
 
 const Vehicles = () => {
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [pageState, setPageState] = useState<PageState>("Data");
+  const [deleteId, setDeleteId] = useState<string>('')
+  const [pageState, setPageState] = useState<PageState>("Initial");
   const [data, setData] = useState<IVehicle[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -51,13 +53,16 @@ const Vehicles = () => {
 
   const handleDeleteVehicleClick = (id: string) => {
     setIsDeleting(true);
+    setDeleteId(id)
     vehicleAPI.Delete.service(id)
       .then(() => {
+        setDeleteId('')
         toast.success("Successfully deleted the vehicle");
         setIsDeleting(false);
         getVehicles();
       })
       .catch(() => {
+        setDeleteId('')
         setIsDeleting(false);
         toast.error("Something went wrong");
       });
@@ -86,7 +91,7 @@ const Vehicles = () => {
       </Box>
       {pageState === "Loading" && <LoaderPage />}
       {pageState === "Data" && !data.length && <EmptyState />}
-      {pageState === "Error" && <ErrorPage />}
+      {pageState === "Error" && <ErrorPage errorHandler={getVehicles} />}
       {pageState === "Data" && data.length && (
         <TableContainer
           component={Paper}
@@ -114,10 +119,11 @@ const Vehicles = () => {
                     <TableCell>{car_model}</TableCell>
                     <TableCell>{plate_number}</TableCell>
                     <TableCell>
-                      <DeleteForeverOutlinedIcon
+                    {isDeleting && id === deleteId ? <Spinner animation="border" variant="alert" /> : <DeleteForeverOutlinedIcon
                         sx={{ color: "red" }}
                         onClick={() => handleDeleteVehicleClick(id)}
-                      />
+                      />}
+                      
                     </TableCell>
                   </TableRow>
                 );
@@ -130,6 +136,7 @@ const Vehicles = () => {
         <AddVehicleModal
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          successCallback={getVehicles}
         />
       )}
     </>

@@ -1,50 +1,98 @@
-import React from 'react';
+import React from "react";
 import {
   Modal,
   Box,
   Typography,
   TextField,
   Button,
-  IconButton
-} from '@mui/material';
-import { IParkingInfo } from '../../Interfaces';
-import CloseIcon from '@mui/icons-material/Close';
+  IconButton,
+} from "@mui/material";
+import { IParkingInfo } from "../../Interfaces";
+import CloseIcon from "@mui/icons-material/Close";
+import * as parkingsAPI from "../../APIs/parking.ts";
+import { useAuth } from "../../AuthContext.tsx";
+import { toast } from "react-toastify";
+import { Spinner } from "react-bootstrap";
 
 interface IProps {
-    open: boolean;
-    onClose: () => void;
-    onSubmit: (data: Omit<IParkingInfo, 'id' | 'available_slots' | 'owner'>) => void;
-    isEditMode: boolean;
-    initialData?: IParkingInfo
+  open: boolean;
+  onClose: () => void;
+  successCallBack: () => void;
+  isEditMode: boolean;
+  initialData?: IParkingInfo;
 }
 
 const LocationModal: React.FC<IProps> = ({
   open,
   onClose,
-  onSubmit,
   isEditMode,
-  initialData
+  initialData,
+  successCallBack,
 }) => {
-  const [locationData, setLocationData] = React.useState<Omit<IParkingInfo, 'id' | 'available_slots' | 'owner'>>({
-    name: initialData?.name || '',
-    location: initialData?.location || '',
+  const { user } = useAuth();
+  const [isAddingOrEditing, setIsAddingOrEditing] = React.useState(false);
+  const [locationData, setLocationData] = React.useState<
+    Omit<IParkingInfo, "id" | "available_slots" | "owner">
+  >({
+    name: initialData?.name || "",
+    location: initialData?.location || "",
     total_slots: initialData?.total_slots || 0,
-    price: initialData?.price || '0',
-    latitude: initialData?.latitude || '0',
-    longitude: initialData?.longitude || '0'
+    price: initialData?.price || 0,
+    latitude: initialData?.latitude || 0,
+    longitude: initialData?.longitude || 0,
   });
 
+  const addParking = () => {
+    setIsAddingOrEditing(true);
+    parkingsAPI.POST.service({
+      ...locationData,
+      owner: user?.user_id!,
+      available_slots: locationData.total_slots,
+    })
+      .then(() => {
+        toast.success("Successfully added the parking");
+        setIsAddingOrEditing(false);
+        onClose();
+        successCallBack();
+      })
+      .catch(() => {
+        toast.error("Something went wrong");
+        setIsAddingOrEditing(false);
+      });
+  };
+
+  const updateParking = () => {
+    setIsAddingOrEditing(true);
+    parkingsAPI.PUT.service({
+      ...locationData,
+      owner: user?.user_id!,
+    }, initialData?.id || '')
+      .then(() => {
+        toast.success("Successfully updating the parking");
+        setIsAddingOrEditing(false);
+        onClose();
+        successCallBack();
+      })
+      .catch(() => {
+        toast.error("Something went wrong");
+        setIsAddingOrEditing(false);
+      });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLocationData({
       ...locationData,
-      [name]: value
+      [name]: value,
     });
   };
 
   const handleSubmit = () => {
-    onSubmit(locationData);
+    if (isEditMode) {
+      updateParking();
+    } else {
+      addParking();
+    }
   };
 
   return (
@@ -56,13 +104,13 @@ const LocationModal: React.FC<IProps> = ({
     >
       <Box
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '500px', // Adjust the width as needed
-          bgcolor: 'background.paper',
-          borderRadius: '8px',
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "500px", // Adjust the width as needed
+          bgcolor: "background.paper",
+          borderRadius: "8px",
           boxShadow: 24,
           p: 4,
         }}
@@ -70,16 +118,16 @@ const LocationModal: React.FC<IProps> = ({
         <IconButton
           onClick={onClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: 12,
             right: 8,
-            color: 'text.secondary'
+            color: "text.secondary",
           }}
         >
           <CloseIcon />
         </IconButton>
         <Typography id="modal-title" variant="h6" component="h2" gutterBottom>
-          {isEditMode ? 'Edit Location' : 'Add Location'}
+          {isEditMode ? "Edit Location" : "Add Location"}
         </Typography>
         <TextField
           label="Location Name"
@@ -92,7 +140,7 @@ const LocationModal: React.FC<IProps> = ({
         />
         <TextField
           label="Address"
-          name="address"
+          name="location"
           fullWidth
           required
           margin="normal"
@@ -101,7 +149,7 @@ const LocationModal: React.FC<IProps> = ({
         />
         <TextField
           label="Total Slots"
-          name="noOfSlots"
+          name="total_slots"
           fullWidth
           required
           margin="normal"
@@ -111,7 +159,7 @@ const LocationModal: React.FC<IProps> = ({
         />
         <TextField
           label="Price/Hour"
-          name="pricePerHour"
+          name="price"
           fullWidth
           required
           margin="normal"
@@ -137,14 +185,20 @@ const LocationModal: React.FC<IProps> = ({
           value={locationData.longitude}
           onChange={handleChange}
         />
-        <Button
+        {isAddingOrEditing ? (
+          <div className="d-flex justify-content-center mb-4">
+            <Spinner animation="border" variant="primary" />
+          </div>
+        ) : (
+          <Button
           variant="contained"
           color="primary"
           onClick={handleSubmit}
           sx={{ mt: 2 }}
         >
-          {isEditMode ? 'Save Changes' : 'Add'}
+          {isEditMode ? "Save Changes" : "Add"}
         </Button>
+        )}
       </Box>
     </Modal>
   );

@@ -2,11 +2,11 @@ import React from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
 import ErrorIcon from '@mui/icons-material/Error';
 
+interface IProps {
+  errorHandler: () => void;
+}
 
-const ErrorPage = () => {
-  const handleRetry = () => {
-    window.location.reload();
-  };
+const ErrorPage: React.FC<IProps> = ({errorHandler}) => {
 
   return (
     <Box
@@ -33,7 +33,7 @@ const ErrorPage = () => {
         <Typography variant="body1" color="textSecondary" paragraph>
           An error occurred while processing your request. Please try again.
         </Typography>
-        <Button variant="contained" color="primary" onClick={handleRetry}>
+        <Button variant="contained" color="primary" onClick={errorHandler}>
           Retry
         </Button>
       </Container>

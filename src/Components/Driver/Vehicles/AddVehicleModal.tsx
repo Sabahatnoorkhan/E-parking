@@ -1,43 +1,64 @@
-import React from 'react';
+import React, { useState } from "react";
 import {
   Modal,
   Box,
   Typography,
   TextField,
   Button,
-  IconButton
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { IVehicle } from '../../../Interfaces';
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { IVehicle } from "../../../Interfaces";
+import { useAuth } from "../../../AuthContext.tsx";
+import * as vehicleAPI from "../../../APIs/driverVehicle.ts";
+import { toast } from "react-toastify";
+import { Spinner } from "react-bootstrap";
 
 interface IProps {
-    open: boolean;
-    onClose: () => void;
+  open: boolean;
+  onClose: () => void;
+  successCallback: () => void;
 }
 
 const AddVehicleModal: React.FC<IProps> = ({
   open,
   onClose,
+  successCallback,
 }) => {
-  const [vehicleData, setVehicleData] = React.useState<Omit<IVehicle, 'id' | 'user'>>({
-  plate_number: '',
-  car_model: ''
+  const { user } = useAuth();
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [vehicleData, setVehicleData] = React.useState<
+    Omit<IVehicle, "id" | "user">
+  >({
+    plate_number: "",
+    car_model: "",
   });
 
-  const handleAddingVehicle = (data: Omit<IVehicle, "id" | "user">) => {
-    alert(`Button clicked for row with ID:`);
+  const handleAddingVehicle = () => {
+    setIsAdding(true);
+    vehicleAPI.POST.service({
+      plate_number: vehicleData.plate_number,
+      car_model: vehicleData.car_model,
+      user: user?.user_id!,
+    })
+      .then(() => {
+        setIsAdding(false);
+        toast.success("Vehicle added successfully");
+        successCallback();
+        onClose();
+      })
+      .catch(() => {
+        setIsAdding(false);
+        toast.error("Something went wrong");
+      });
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setVehicleData({
       ...vehicleData,
-      [name]: value
+      [name]: value,
     });
-  };
-
-  const handleSubmit = () => {
-    handleAddingVehicle(vehicleData);
   };
 
   return (
@@ -49,13 +70,13 @@ const AddVehicleModal: React.FC<IProps> = ({
     >
       <Box
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '500px', // Adjust the width as needed
-          bgcolor: 'background.paper',
-          borderRadius: '8px',
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "500px", // Adjust the width as needed
+          bgcolor: "background.paper",
+          borderRadius: "8px",
           boxShadow: 24,
           p: 4,
         }}
@@ -63,16 +84,16 @@ const AddVehicleModal: React.FC<IProps> = ({
         <IconButton
           onClick={onClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: 12,
             right: 8,
-            color: 'text.secondary'
+            color: "text.secondary",
           }}
         >
           <CloseIcon />
         </IconButton>
         <Typography id="modal-title" variant="h6" component="h2" gutterBottom>
-        Add Vehicle
+          Add Vehicle
         </Typography>
         <TextField
           label="Car Model"
@@ -92,14 +113,20 @@ const AddVehicleModal: React.FC<IProps> = ({
           value={vehicleData.plate_number}
           onChange={handleChange}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          sx={{ mt: 2 }}
-        >
-          Add
-        </Button>
+        {isAdding ? (
+          <div className="d-flex justify-content-center mb-4">
+            <Spinner animation="border" variant="primary" />
+          </div>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddingVehicle}
+            sx={{ mt: 2 }}
+          >
+            Add
+          </Button>
+        )}
       </Box>
     </Modal>
   );

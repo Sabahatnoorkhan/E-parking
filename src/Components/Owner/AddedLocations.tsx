@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavbarComponent from "../Navbar.tsx";
 import {
   Table,
@@ -22,19 +22,51 @@ import {
 import ErrorPage from "../ErrorState.tsx";
 import LoaderPage from "../LoadingState.tsx";
 import EmptyState from "../EmptyState.tsx";
-import { mockOwnerLocation } from "../Driver/BookParking/mockData.ts";
 import LocationModal from "./AddEditLocationModal.tsx";
+import * as myParkingsAPI from "../../APIs/getOwnerParking.ts"
+import * as parkingsAPI from "../../APIs/parking.ts"
+import { useAuth } from "../../AuthContext.tsx";
+import { toast } from "react-toastify";
+import { Spinner } from "react-bootstrap";
 
 const OwnerLocation = () => {
-  const [pageState, setPageState] = useState<PageState>("Data");
-  const [data, setData] = useState<IParkingInfo[]>(mockOwnerLocation);
+  const { user } = useAuth();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string>('')
+  const [pageState, setPageState] = useState<PageState>("Initial");
+  const [data, setData] = useState<IParkingInfo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedLocation, setSelectedLocation] = useState<IParkingInfo>();
   const [modalState, setModalState] = useState<LocationModalState>("Add");
 
-  const handleOnSubmit = (location: Omit<IParkingInfo, 'id' | 'available_slots' | 'owner'>) => {
-    alert(`Button clicked for row with ID: ${location.name}`);
-  };
+  const getMyParkings = () => {
+    setPageState('Loading')
+    myParkingsAPI.GET.service(user?.user_id!).then(({data}) => {
+      setData(data);
+      setPageState('Data');
+    }).catch(() => {
+      setPageState('Error');
+    })
+  }
+
+  const deleteParking = (parkingId: string) => {
+    setIsDeleting(true);
+    setDeleteId(parkingId);
+    parkingsAPI.Delete.service(parkingId).then(() => {
+      setIsDeleting(false);
+      setDeleteId('');
+      toast.success('Successfully deleted the parking space');
+      getMyParkings();
+    }).catch(() => {
+      setDeleteId('')
+      setIsDeleting(false);
+      toast.error('Something went wrong');
+    })
+  }
+
+  useEffect(() => {
+    getMyParkings();
+  }, [])
 
   const handleAddLocationClick = () => {
     setModalState('Add');
@@ -65,7 +97,7 @@ const OwnerLocation = () => {
       </Box>
       {pageState === "Loading" && <LoaderPage />}
       {pageState === "Data" && !data.length && <EmptyState />}
-      {pageState === "Error" && <ErrorPage />}
+      {pageState === "Error" && <ErrorPage errorHandler={getMyParkings} />}
       {pageState === "Data" && data.length && (
         <TableContainer
           component={Paper}
@@ -100,7 +132,7 @@ const OwnerLocation = () => {
               {data.map((row) => {
                 const {id, name, location, latitude, longitude, price, total_slots} = row
                 return (
-                  <TableRow key={row.id}>
+                  <TableRow key={id}>
                     <TableCell>{name}</TableCell>
                     <TableCell>{location}</TableCell>
                     <TableCell>{total_slots}</TableCell>
@@ -108,7 +140,7 @@ const OwnerLocation = () => {
                     <TableCell>{latitude}</TableCell>
                     <TableCell>{longitude}</TableCell>
                     <TableCell>
-                      <DeleteForeverOutlinedIcon sx={{ color: "red" }} />
+                      {isDeleting && id === deleteId ? <Spinner animation="border" variant="alert" /> : <DeleteForeverOutlinedIcon sx={{ color: "red" }} onClick={() => deleteParking(id)}/>}
                     </TableCell>
                     <TableCell>
                       <EditIcon
@@ -130,7 +162,7 @@ const OwnerLocation = () => {
       {isModalOpen && <LocationModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleOnSubmit}
+        successCallBack={getMyParkings}
         initialData={selectedLocation}
         isEditMode={modalState === "Edit"}
       />}

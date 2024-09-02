@@ -23,7 +23,7 @@ const Login = () => {
         login(access, user_info);
 
         if(role === 'driver'){
-          navigate('/bookParking')
+          navigate('/vehicles')
         }
         if(role === 'parking_owner'){
           navigate('/ownerLocations')

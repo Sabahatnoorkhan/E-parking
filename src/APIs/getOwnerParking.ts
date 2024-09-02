@@ -4,7 +4,7 @@ import { IParkingInfo } from "../Interfaces";
 export namespace GET {
   const baseURL = 'http://127.0.0.1:8000';
 
-  export const getUrl = (ownerId: string) => `${baseURL}/parking_spaces/owner/${ownerId}`;
+  export const getUrl = (ownerId: string) => `${baseURL}/parking_spaces/owner/${ownerId}/`;
 
   export type IResponse = IParkingInfo[];
 

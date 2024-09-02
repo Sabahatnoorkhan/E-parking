@@ -4,7 +4,7 @@ import { IDriverBooking } from "../Interfaces";
 export namespace GET {
   const baseURL = 'http://127.0.0.1:8000';
 
-  export const getUrl = (driverId: string) => `${baseURL}/bookings/driver/${driverId}`;
+  export const getUrl = (driverId: string) => `${baseURL}/bookings/driver/${driverId}/`;
 
   export type IResponse = IDriverBooking[];
 

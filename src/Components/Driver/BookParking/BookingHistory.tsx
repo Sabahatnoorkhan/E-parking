@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import NavbarComponent from '../../Navbar.tsx';
 import {
   Table,
@@ -16,14 +15,27 @@ import { IDriverBooking, PageState } from '../../../Interfaces/index.ts';
 import LoaderPage from '../../LoadingState.tsx';
 import EmptyState from '../../EmptyState.tsx';
 import ErrorPage from '../../ErrorState.tsx';
+import * as bookingHistoryAPI from '../../../APIs/getDriversBooking.ts'
+import { useAuth } from "../../../AuthContext.tsx";
 
 const BookingHistory = () => {
-  const [pageState, setPageState] = useState<PageState>('Data');
+  const { user } = useAuth();
+  const [pageState, setPageState] = useState<PageState>('Initial');
   const [data, setData] = useState<IDriverBooking[]>([]);
 
-  const handleButtonClick = (row) => {
-    alert(`Button clicked for row with ID: ${row.id}`);
-  };
+  const getBookingHistory = () => {
+    setPageState('Loading');
+    bookingHistoryAPI.GET.service(user?.user_id!).then(({data}) => {
+      setPageState('Data');
+      setData(data);
+    }).catch(() => {
+      setPageState('Error');
+    })
+  }
+
+  useEffect(() => {
+    getBookingHistory();
+  }, [])
 
   return (
     <>
@@ -40,7 +52,7 @@ const BookingHistory = () => {
     </Box>
     {pageState === 'Loading' && <LoaderPage/>}
     {pageState === 'Data' && !data.length && <EmptyState/>}
-    {pageState === 'Error' && <ErrorPage/>}
+    {pageState === 'Error' && <ErrorPage errorHandler={getBookingHistory}/>}
     {pageState === 'Data' && data.length && <TableContainer component={Paper} sx={{marginTop: '8px', borderTop: '1px solid black'}}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>

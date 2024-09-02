@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, FC } from 'react';
+import React, { createContext, useContext, useState, ReactNode, FC } from 'react';
 import { IUser } from './Interfaces';
 
 // Define the types for the Auth context
@@ -20,16 +20,18 @@ interface AuthProviderProps {
 // Define the AuthProvider component
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('authToken'));
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IUser | null>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null);
 
-  useEffect(() => {
-    if (authToken) {
-      // Logic to fetch user data if needed
-    }
-  }, [authToken]);
+  // useEffect(() => {
+  //   if (authToken) {
+  //     // Logic to fetch user data if needed
+  //   }
+  // }, [authToken]);
 
-  const login = (token: string, user: IUser) => {
+  const login = (token: string, userInfo: IUser) => {
     localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(userInfo));
+
     setAuthToken(token);
     setUser(user)
     // Optionally, fetch user data or perform other actions
@@ -37,6 +39,8 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+
     setAuthToken(null);
     setUser(null);
   };
