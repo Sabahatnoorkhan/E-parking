@@ -15,7 +15,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import {
-  IOwnerLocationInfo,
+  IParkingInfo,
   LocationModalState,
   PageState,
 } from "../../Interfaces/index.ts";
@@ -27,12 +27,12 @@ import LocationModal from "./AddEditLocationModal.tsx";
 
 const OwnerLocation = () => {
   const [pageState, setPageState] = useState<PageState>("Data");
-  const [data, setData] = useState<IOwnerLocationInfo[]>(mockOwnerLocation);
+  const [data, setData] = useState<IParkingInfo[]>(mockOwnerLocation);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedLocation, setSelectedLocation] = useState<IOwnerLocationInfo>();
+  const [selectedLocation, setSelectedLocation] = useState<IParkingInfo>();
   const [modalState, setModalState] = useState<LocationModalState>("Add");
 
-  const handleOnSubmit = (location: Omit<IOwnerLocationInfo, "id">) => {
+  const handleOnSubmit = (location: Omit<IParkingInfo, 'id' | 'available_slots' | 'owner'>) => {
     alert(`Button clicked for row with ID: ${location.name}`);
   };
 
@@ -97,29 +97,32 @@ const OwnerLocation = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.address}</TableCell>
-                  <TableCell>{row.noOfSlots}</TableCell>
-                  <TableCell>{row.pricePerHour}</TableCell>
-                  <TableCell>{row.latitude}</TableCell>
-                  <TableCell>{row.longitude}</TableCell>
-                  <TableCell>
-                    <DeleteForeverOutlinedIcon sx={{ color: "red" }} />
-                  </TableCell>
-                  <TableCell>
-                    <EditIcon
-                      sx={{ color: "green" }}
-                      onClick={() => {
-                        setSelectedLocation(row);
-                        setModalState('Edit');
-                        setIsModalOpen(true);
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.map((row) => {
+                const {id, name, location, latitude, longitude, price, total_slots} = row
+                return (
+                  <TableRow key={row.id}>
+                    <TableCell>{name}</TableCell>
+                    <TableCell>{location}</TableCell>
+                    <TableCell>{total_slots}</TableCell>
+                    <TableCell>{price}</TableCell>
+                    <TableCell>{latitude}</TableCell>
+                    <TableCell>{longitude}</TableCell>
+                    <TableCell>
+                      <DeleteForeverOutlinedIcon sx={{ color: "red" }} />
+                    </TableCell>
+                    <TableCell>
+                      <EditIcon
+                        sx={{ color: "green" }}
+                        onClick={() => {
+                          setSelectedLocation(row);
+                          setModalState('Edit');
+                          setIsModalOpen(true);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>

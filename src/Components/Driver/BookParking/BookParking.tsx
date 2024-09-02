@@ -13,7 +13,7 @@ import {
   Box,
   Typography
 } from '@mui/material';
-import { ILocationInfo, PageState } from '../../../Interfaces/index.ts';
+import { IParkingInfo, PageState } from '../../../Interfaces/index.ts';
 import { mockLocationData } from './mockData.ts';
 import BookingModal from './BookingModal.tsx';
 import ErrorPage from '../../ErrorState.tsx';
@@ -22,9 +22,9 @@ import EmptyState from '../../EmptyState.tsx';
 
 const BookParking = () => {
   const [pageState, setPageState] = useState<PageState>('Data');
-  const [data, setData] = useState<ILocationInfo[]>(mockLocationData);
+  const [data, setData] = useState<IParkingInfo[]>(mockLocationData);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedParking, setSelectedParking] = useState<ILocationInfo>()
+  const [selectedParking, setSelectedParking] = useState<IParkingInfo>()
 
   const handleButtonClick = (row) => {
     alert(`Button clicked for row with ID: ${row.id}`);
@@ -59,40 +59,42 @@ const BookParking = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.address}</TableCell>
-              <TableCell>{row.noOfSlotsAvailable}</TableCell>
-              <TableCell>{row.pricePerHour}</TableCell>
-              <TableCell><Button
-                  variant="contained"
-                  color="success"
-                  onClick={() => {
-                    setSelectedParking(row)
-                    setIsModalOpen(true)}}
-                  disabled={row.noOfSlotsAvailable < 1}
-                >
-                  Book
-                </Button></TableCell>
-              <TableCell><Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleButtonClick(row)}
-                >
-                  Locate
-                </Button></TableCell>
-            </TableRow>
-          ))}
+          {data.map((row) => {
+            const {name, location, price, available_slots, id} = row
+            return (
+              <TableRow key={id}>
+                <TableCell>{name}</TableCell>
+                <TableCell>{location}</TableCell>
+                <TableCell>{available_slots}</TableCell>
+                <TableCell>{price}</TableCell>
+                <TableCell><Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => {
+                      setSelectedParking(row)
+                      setIsModalOpen(true)}}
+                    disabled={available_slots < 1}
+                  >
+                    Book
+                  </Button></TableCell>
+                <TableCell><Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleButtonClick(row)}
+                  >
+                    Locate
+                  </Button></TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </TableContainer>}
-    <BookingModal
+    {!!selectedParking && <BookingModal
         open={isModalOpen}
         handleClose={() => setIsModalOpen(false)}
-        locationName={selectedParking?.name || ''}
-        slotNumber={selectedParking?.noOfSlotsAvailable || 0}
-      />
+        selectedParking={selectedParking}
+      />}
     </>
   );
 };

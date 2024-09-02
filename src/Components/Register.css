@@ -1,0 +1,17 @@
+.register-container {
+    position: relative;
+    height: 100vh; /* Full viewport height */
+    background-size: cover;
+  }
+  
+  .register-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 450px; /* Adjust the form width as needed */
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    border-radius: 8px; /* Optional: for rounded corners */
+    padding: 20px; /* Optional: for spacing inside the form */
+  }

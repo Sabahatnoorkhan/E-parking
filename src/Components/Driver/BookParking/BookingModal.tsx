@@ -1,14 +1,22 @@
 import React, { useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
-import { Modal, Box, TextField, Button, Typography, IconButton } from "@mui/material";
+import { Modal, Box, TextField, Button, Typography, IconButton, Select, MenuItem } from "@mui/material";
+import { IParkingInfo } from "../../../Interfaces";
+import { useAuth } from "../../../AuthContext.tsx";
 
-const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
+interface IProps {
+  open: boolean;
+  handleClose: () => void;
+  selectedParking: IParkingInfo
+}
+
+const BookingModal: React.FC<IProps> = ({ open, handleClose, selectedParking }) => {
+  const {user} =  useAuth();
+  const { name, available_slots, id } = selectedParking
   const [formData, setFormData] = useState({
-    driverName: "",
-    carNumber: "",
+    vehicle: "",
     fromTime: "",
     totalHours: "",
-    email: "",
   });
 
   const handleChange = (e) => {
@@ -21,7 +29,12 @@ const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
+    const payload = {
+      user: user?.user_id,
+      parking_space: id,
+      start_time: formData.fromTime,
+      end_time: formData.fromTime
+    }
     console.log(formData);
   };
 
@@ -40,7 +53,6 @@ const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
           p: 4,
         }}
       >
-        {/* Modal Heading */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{fontWeight : 'bold'}} component="div">
             Book Parking Slot
@@ -49,8 +61,7 @@ const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
             <CloseIcon />
           </IconButton>
         </Box>
-        
-        {/* Pre-populated Location and Slot Number */}
+
         <Typography variant="body1" component="div" sx={{ mb: 2 }}>
           <Typography variant="body1" component="span">
             Location:
@@ -60,7 +71,7 @@ const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
             component="span"
             sx={{ fontWeight: "bold", color: "blue" }}
           >
-            {` ${locationName}`}
+            {` ${name}`}
           </Typography>
         </Typography>
         <Typography variant="body1" component="div">
@@ -72,40 +83,26 @@ const BookingModal = ({ open, handleClose, locationName, slotNumber }) => {
             component="span"
             sx={{ fontWeight: "bold", color: "blue" }}
           >
-            {` ${slotNumber}`} {/* Pre-populated field for slot number */}
+            {` ${available_slots}`}
           </Typography>
         </Typography>
         
         {/* Form Fields */}
         <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Driver Name"
-            name="driverName"
-            value={formData.driverName}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Car Number"
-            name="carNumber"
-            value={formData.carNumber}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        <Select
+        labelId="vehicle-select-label"
+        value={formData.vehicle}
+        onChange={handleChange}
+        label="Select Vehicle"
+        name="vehicle"
+        required
+      >
+        {vehicles.map((vehicle) => (
+          <MenuItem key={vehicle.id} value={vehicle.id}>
+            {vehicle.car_model}
+          </MenuItem>
+        ))}
+      </Select>
           <TextField
             fullWidth
             margin="normal"

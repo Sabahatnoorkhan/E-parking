@@ -7,15 +7,15 @@ import {
   Button,
   IconButton
 } from '@mui/material';
-import { IOwnerLocationInfo } from '../../Interfaces';
+import { IParkingInfo } from '../../Interfaces';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface IProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (data: Omit<IOwnerLocationInfo, 'id'>) => void;
+    onSubmit: (data: Omit<IParkingInfo, 'id' | 'available_slots' | 'owner'>) => void;
     isEditMode: boolean;
-    initialData?: IOwnerLocationInfo
+    initialData?: IParkingInfo
 }
 
 const LocationModal: React.FC<IProps> = ({
@@ -25,17 +25,16 @@ const LocationModal: React.FC<IProps> = ({
   isEditMode,
   initialData
 }) => {
-  // State to manage form inputs
-  const [locationData, setLocationData] = React.useState<Omit<IOwnerLocationInfo, 'id'>>({
+  const [locationData, setLocationData] = React.useState<Omit<IParkingInfo, 'id' | 'available_slots' | 'owner'>>({
     name: initialData?.name || '',
-    address: initialData?.address || '',
-    noOfSlots: initialData?.noOfSlots || 0,
-    pricePerHour: initialData?.pricePerHour || 0,
-    latitude: initialData?.latitude || 0,
-    longitude: initialData?.longitude || 0
+    location: initialData?.location || '',
+    total_slots: initialData?.total_slots || 0,
+    price: initialData?.price || '0',
+    latitude: initialData?.latitude || '0',
+    longitude: initialData?.longitude || '0'
   });
 
-  // Handle input change
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLocationData({
@@ -44,7 +43,6 @@ const LocationModal: React.FC<IProps> = ({
     });
   };
 
-  // Handle form submission
   const handleSubmit = () => {
     onSubmit(locationData);
   };
@@ -98,7 +96,7 @@ const LocationModal: React.FC<IProps> = ({
           fullWidth
           required
           margin="normal"
-          value={locationData.address}
+          value={locationData.location}
           onChange={handleChange}
         />
         <TextField
@@ -108,7 +106,7 @@ const LocationModal: React.FC<IProps> = ({
           required
           margin="normal"
           type="number"
-          value={locationData.noOfSlots}
+          value={locationData.total_slots}
           onChange={handleChange}
         />
         <TextField
@@ -118,7 +116,7 @@ const LocationModal: React.FC<IProps> = ({
           required
           margin="normal"
           type="number"
-          value={locationData.pricePerHour}
+          value={locationData.price}
           onChange={handleChange}
         />
         <TextField

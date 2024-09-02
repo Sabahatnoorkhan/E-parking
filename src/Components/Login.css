@@ -1,0 +1,24 @@
+.login-container {
+    background-size: cover; /* Make sure the background image covers the entire container */
+    background-position: center; /* Center the background image */
+  }
+  
+  .login-form {
+    background-color: rgba(255, 255, 255, 0.8); /* Set background with reduced opacity */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add some shadow for depth */
+  }
+  
+  .login-form .form-control {
+    background-color: rgba(255, 255, 255, 1); /* Ensure form fields are fully opaque */
+    border: 1px solid #ddd; /* Optional: add a light border around form fields */
+  }
+  
+  .login-form .form-label {
+    color: #333; /* Optional: adjust label color */
+  }
+  
+  .login-form .btn {
+    background-color: #007bff; /* Bootstrap's primary button color */
+    border: none; /* Remove button border */
+  }
+  
