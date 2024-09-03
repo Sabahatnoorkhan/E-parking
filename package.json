@@ -5,6 +5,8 @@
   "dependencies": {
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
+    "@mapbox/mapbox-gl-directions": "github:mapbox/mapbox-gl-directions",
+    "@mapbox/mapbox-sdk": "^0.16.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@testing-library/jest-dom": "^5.17.0",
@@ -12,9 +14,11 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.6",
     "bootstrap": "^5.3.3",
+    "mapbox-gl": "^3.6.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
     "react-dom": "^18.3.1",
+    "react-map-gl": "^7.1.7",
     "react-router-dom": "^6.26.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
@@ -45,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "@types/mapbox__mapbox-sdk": "^0.15.1",
     "@types/react-router-dom": "^5.3.3"
   }
 }

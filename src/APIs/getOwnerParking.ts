@@ -2,7 +2,7 @@ import axios from "axios";
 import { IParkingInfo } from "../Interfaces";
 
 export namespace GET {
-  const baseURL = 'http://127.0.0.1:8000';
+  const baseURL = process.env.REACT_APP_API_URL;
 
   export const getUrl = (ownerId: string) => `${baseURL}/parking_spaces/owner/${ownerId}/`;
 

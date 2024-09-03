@@ -63,10 +63,13 @@ const LocationModal: React.FC<IProps> = ({
 
   const updateParking = () => {
     setIsAddingOrEditing(true);
-    parkingsAPI.PUT.service({
-      ...locationData,
-      owner: user?.user_id!,
-    }, initialData?.id || '')
+    parkingsAPI.PUT.service(
+      {
+        ...locationData,
+        owner: user?.user_id!,
+      },
+      initialData?.id || ""
+    )
       .then(() => {
         toast.success("Successfully updating the parking");
         setIsAddingOrEditing(false);
@@ -156,6 +159,11 @@ const LocationModal: React.FC<IProps> = ({
           type="number"
           value={locationData.total_slots}
           onChange={handleChange}
+          inputProps={{ min: 0 }} // Ensures the value cannot be less than 0
+          error={locationData.total_slots < 0}
+          helperText={
+            locationData.total_slots < 0 ? "Total slots cannot be negative" : ""
+          }
         />
         <TextField
           label="Price/Hour"
@@ -166,12 +174,17 @@ const LocationModal: React.FC<IProps> = ({
           type="number"
           value={locationData.price}
           onChange={handleChange}
+          inputProps={{ min: 0 }} // Ensures the value cannot be less than 0
+          error={locationData.price < 0}
+          helperText={locationData.price < 0 ? "Price cannot be negative" : ""}
         />
+
         <TextField
           label="Latitude"
           name="latitude"
           fullWidth
           required
+          type="number"
           margin="normal"
           value={locationData.latitude}
           onChange={handleChange}
@@ -181,6 +194,7 @@ const LocationModal: React.FC<IProps> = ({
           name="longitude"
           fullWidth
           required
+          type="number"
           margin="normal"
           value={locationData.longitude}
           onChange={handleChange}
@@ -191,13 +205,13 @@ const LocationModal: React.FC<IProps> = ({
           </div>
         ) : (
           <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          sx={{ mt: 2 }}
-        >
-          {isEditMode ? "Save Changes" : "Add"}
-        </Button>
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            sx={{ mt: 2 }}
+          >
+            {isEditMode ? "Save Changes" : "Add"}
+          </Button>
         )}
       </Box>
     </Modal>

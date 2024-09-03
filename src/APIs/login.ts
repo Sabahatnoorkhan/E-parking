@@ -2,7 +2,7 @@ import axios from "axios";
 import { IUser } from "../Interfaces";
 
 export namespace POST {
-  const baseURL = 'http://127.0.0.1:8000';
+  const baseURL = process.env.REACT_APP_API_URL;
 
   export const getUrl = () => `${baseURL}/user-mgmt/api/token`;
 

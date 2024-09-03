@@ -12,7 +12,11 @@ import {
 } from "@mui/material";
 import { IParkingInfo, IVehicle, PageState } from "../../../Interfaces";
 import { useAuth } from "../../../AuthContext.tsx";
-import { getDropdownOptions } from "../../../Helpers/index.ts";
+import {
+  getDropdownOptions,
+  getEndTime,
+  getTimeInEpoch,
+} from "../../../Helpers/index.ts";
 import * as bookParkingAPI from "../../../APIs/bookParking.ts";
 import { toast } from "react-toastify";
 import * as vehicleAPI from "../../../APIs/driverVehicle.ts";
@@ -39,8 +43,10 @@ const BookingModal: React.FC<IProps> = ({
   const [formData, setFormData] = useState({
     vehicle: "",
     fromTime: "",
-    totalHours: "",
+    totalHours: 0,
   });
+
+  console.log(formData, "formData");
 
   const getVehicles = () => {
     setGetVehicleState("Loading");
@@ -70,12 +76,13 @@ const BookingModal: React.FC<IProps> = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { fromTime, vehicle, totalHours } = formData;
     const payload = {
       user: user?.user_id!,
       parking_space: id,
-      start_time: formData.fromTime,
-      end_time: formData.fromTime,
-      vehicle: formData.vehicle,
+      start_time: getTimeInEpoch(fromTime),
+      end_time: getEndTime(getTimeInEpoch(fromTime), totalHours),
+      vehicle: vehicle,
     };
     setIsBooking(true);
     bookParkingAPI.POST.service(payload)
@@ -155,7 +162,7 @@ const BookingModal: React.FC<IProps> = ({
             </div>
           ) : getVehicleState === "Error" ? (
             <Button
-            fullWidth
+              fullWidth
               variant="contained"
               color="error"
               sx={{ mt: 1 }}
@@ -213,7 +220,9 @@ const BookingModal: React.FC<IProps> = ({
               variant="contained"
               color="primary"
               sx={{ mt: 1 }}
-              disabled={getVehicleState === 'Loading' || getVehicleState === 'Error'}
+              disabled={
+                getVehicleState === "Loading" || getVehicleState === "Error"
+              }
             >
               Submit
             </Button>

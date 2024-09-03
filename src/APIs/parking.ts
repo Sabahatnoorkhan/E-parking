@@ -1,7 +1,7 @@
 import axios from "axios";
 import { IParkingInfo } from "../Interfaces";
 
-const baseURL = "http://127.0.0.1:8000";
+const baseURL = process.env.REACT_APP_API_URL;
 
 export namespace GET {
   export const getUrl = () => `${baseURL}/parking_spaces/`;

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http://127.0.0.1:8000";
+const baseURL = process.env.REACT_APP_API_URL;
 
 export namespace POST {
   export const getUrl = () => `${baseURL}/bookings/`;
@@ -9,8 +9,8 @@ export namespace POST {
     user: string;
     vehicle: string;
     parking_space: string;
-    start_time: string;
-    end_time: string;
+    start_time: number;
+    end_time: number;
   };
 
   export const service = (body: IRequest) => {

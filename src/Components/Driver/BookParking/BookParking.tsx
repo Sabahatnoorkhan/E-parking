@@ -19,15 +19,35 @@ import ErrorPage from "../../ErrorState.tsx";
 import LoaderPage from "../../LoadingState.tsx";
 import EmptyState from "../../EmptyState.tsx";
 import * as getAllParkingsAPI from "../../../APIs/parking.ts";
+import LocationMapModal from "./LocationMapModal.tsx";
+import { toast } from "react-toastify";
 
 const BookParking = () => {
   const [pageState, setPageState] = useState<PageState>("Initial");
   const [data, setData] = useState<IParkingInfo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedParking, setSelectedParking] = useState<IParkingInfo>();
+  const [isMapModalOpen, setIsMapModalOpen] = useState<boolean>(false); // State to control map modal
+  const [mapLocation, setMapLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number, longitude: number } | null>(null);
 
-  const handleButtonClick = (row) => {
-    alert(`Button clicked for row with ID: ${row.id}`);}
+
+  const handleLocateClick = (latitude: number, longitude: number) => {
+    setMapLocation({ latitude, longitude });
+    // Get current location
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCurrentLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+        setIsMapModalOpen(true);
+      },
+      () => {
+        toast.error('Error getting location')
+      }
+    );
+  };
 
   const getParkings = () => {
     setPageState("Loading");
@@ -88,7 +108,7 @@ const BookParking = () => {
             </TableHead>
             <TableBody>
               {data.map((row) => {
-                const { name, location, price, available_slots, id } = row;
+                const { name, location, price, available_slots, id, latitude, longitude } = row;
                 return (
                   <TableRow key={id}>
                     <TableCell>{name}</TableCell>
@@ -112,7 +132,7 @@ const BookParking = () => {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => handleButtonClick(row)}
+                        onClick={() => handleLocateClick(Number(latitude), Number(longitude))}
                       >
                         Locate
                       </Button>
@@ -130,6 +150,16 @@ const BookParking = () => {
           handleClose={() => setIsModalOpen(false)}
           selectedParking={selectedParking}
           successCallBack={getParkings}
+        />
+      )}
+      {isMapModalOpen && mapLocation && (
+        <LocationMapModal
+          open={isMapModalOpen}
+          onClose={() => setIsMapModalOpen(false)}
+          latitude={mapLocation.latitude}
+          longitude={mapLocation.longitude}
+          currentLatitude={currentLocation?.latitude!}
+          currentLongitude={currentLocation?.longitude!}
         />
       )}
     </>
