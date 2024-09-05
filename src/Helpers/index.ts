@@ -1,3 +1,4 @@
+import moment from "moment";
 import { IVehicle } from "../Interfaces";
 
 export const getDropdownOptions = (vehicles: IVehicle[]) => {
@@ -14,4 +15,8 @@ return dateObject.getTime();
 
 export const getEndTime = (fromTime: number, totalHours: number) => {
   return fromTime + (3600000*totalHours)
+}
+
+export const getFormattedDate = ( epoch: number) => {
+  return moment(epoch).format('MM/DD/YYYY hh:mm A')
 }

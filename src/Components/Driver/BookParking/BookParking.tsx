@@ -21,30 +21,43 @@ import EmptyState from "../../EmptyState.tsx";
 import * as getAllParkingsAPI from "../../../APIs/parking.ts";
 import LocationMapModal from "./LocationMapModal.tsx";
 import { toast } from "react-toastify";
+import { Spinner } from "react-bootstrap";
 
 const BookParking = () => {
   const [pageState, setPageState] = useState<PageState>("Initial");
   const [data, setData] = useState<IParkingInfo[]>([]);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locatingId, setLocatingId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedParking, setSelectedParking] = useState<IParkingInfo>();
   const [isMapModalOpen, setIsMapModalOpen] = useState<boolean>(false); // State to control map modal
-  const [mapLocation, setMapLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [mapLocation, setMapLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
-
-  const handleLocateClick = (latitude: number, longitude: number) => {
+  const handleLocateClick = (latitude: number, longitude: number, id: string) => {
+    setIsLocating(true);
+    setLocatingId(id);
     setMapLocation({ latitude, longitude });
-    // Get current location
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setCurrentLocation({
           latitude: position.coords.latitude,
-          longitude: position.coords.longitude
+          longitude: position.coords.longitude,
         });
+        setLocatingId('');
+        setIsLocating(false);
         setIsMapModalOpen(true);
       },
       () => {
-        toast.error('Error getting location')
+        setLocatingId('');
+        setIsLocating(false);
+        toast.error("Error getting location");
       }
     );
   };
@@ -61,9 +74,9 @@ const BookParking = () => {
       });
   };
 
- useEffect(() => {
-  getParkings();
- }, [])
+  useEffect(() => {
+    getParkings();
+  }, []);
 
   return (
     <>
@@ -108,7 +121,15 @@ const BookParking = () => {
             </TableHead>
             <TableBody>
               {data.map((row) => {
-                const { name, location, price, available_slots, id, latitude, longitude } = row;
+                const {
+                  name,
+                  location,
+                  price,
+                  available_slots,
+                  id,
+                  latitude,
+                  longitude,
+                } = row;
                 return (
                   <TableRow key={id}>
                     <TableCell>{name}</TableCell>
@@ -129,13 +150,21 @@ const BookParking = () => {
                       </Button>
                     </TableCell>
                     <TableCell>
-                      <Button
+                      {isLocating && locatingId === id ? (
+                        <div className="d-flex justify-content-center">
+                          <Spinner animation="border" variant="primary" />
+                        </div>
+                      ) : (
+                        <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => handleLocateClick(Number(latitude), Number(longitude))}
+                        onClick={() =>
+                          handleLocateClick(Number(latitude), Number(longitude), id)
+                        }
                       >
                         Locate
                       </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 );

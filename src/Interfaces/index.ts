@@ -24,11 +24,13 @@ export interface IParkingInfo {
 export interface IDriverBooking {
   id: string;
   booking_time: string;
-  start_time: string;
-  end_time: string;
+  start_time: number;
+  end_time: number;
   user: string;
-  vehicle: IVehicle;
-  parking_space: IParkingInfo
+  vehicle: string;
+  parking_space: string,
+  vehicle_object: IVehicle,
+  parking_space_object: IParkingInfo,
 }
 
 export interface IVehicle {

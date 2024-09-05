@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 import NavbarComponent from '../../Navbar.tsx';
 import {
   Table,
@@ -17,6 +18,7 @@ import EmptyState from '../../EmptyState.tsx';
 import ErrorPage from '../../ErrorState.tsx';
 import * as bookingHistoryAPI from '../../../APIs/getDriversBooking.ts'
 import { useAuth } from "../../../AuthContext.tsx";
+import { getFormattedDate } from '../../../Helpers/index.ts';
 
 const BookingHistory = () => {
   const { user } = useAuth();
@@ -66,16 +68,16 @@ const BookingHistory = () => {
         </TableHead>
         <TableBody>
           {data.map((row) => {
-            const {start_time, end_time, parking_space, vehicle, id} = row;
-            const { plate_number } = vehicle;
-            const {name, location} = parking_space;
+            const {start_time, end_time, parking_space_object, vehicle_object, id} = row;
+            const { plate_number } = vehicle_object;
+            const {name, location} = parking_space_object;
             return (
               <TableRow key={id}>
                 <TableCell>{name}</TableCell>
                 <TableCell>{location}</TableCell>
                 <TableCell>{plate_number}</TableCell>
-                <TableCell>{start_time}</TableCell>
-                <TableCell>{end_time}</TableCell>
+                <TableCell>{getFormattedDate(start_time)}</TableCell>
+                <TableCell>{getFormattedDate(end_time)}</TableCell>
               </TableRow>
             )
           })}

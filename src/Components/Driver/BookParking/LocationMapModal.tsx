@@ -53,7 +53,6 @@ const LocationMapModal: React.FC<LocationMapModalProps> = ({
       .then((response) => {
           
           const data = response.body;
-          console.log(data, 'lllllllll');
         if (data.routes.length > 0) {
           const routeGeoJson = {
             type: 'Feature',

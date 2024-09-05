@@ -36,8 +36,8 @@ const LocationModal: React.FC<IProps> = ({
   >({
     name: initialData?.name || "",
     location: initialData?.location || "",
-    total_slots: initialData?.total_slots || 0,
-    price: initialData?.price || 0,
+    total_slots: initialData?.total_slots || 1,
+    price: initialData?.price || 1,
     latitude: initialData?.latitude || 0,
     longitude: initialData?.longitude || 0,
   });
@@ -159,10 +159,10 @@ const LocationModal: React.FC<IProps> = ({
           type="number"
           value={locationData.total_slots}
           onChange={handleChange}
-          inputProps={{ min: 0 }} // Ensures the value cannot be less than 0
-          error={locationData.total_slots < 0}
+          inputProps={{ min: 1 }}
+          error={locationData.total_slots < 1}
           helperText={
-            locationData.total_slots < 0 ? "Total slots cannot be negative" : ""
+            locationData.total_slots < 1 ? "Total slots cannot be less than 1" : ""
           }
         />
         <TextField
@@ -174,9 +174,9 @@ const LocationModal: React.FC<IProps> = ({
           type="number"
           value={locationData.price}
           onChange={handleChange}
-          inputProps={{ min: 0 }} // Ensures the value cannot be less than 0
-          error={locationData.price < 0}
-          helperText={locationData.price < 0 ? "Price cannot be negative" : ""}
+          inputProps={{ min: 1 }}
+          error={locationData.price < 1}
+          helperText={locationData.price < 0 ? "Price cannot be less than 1 pound" : ""}
         />
 
         <TextField

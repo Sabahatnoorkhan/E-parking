@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyState Component should match the snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiBox-root css-1fqmik4"
+  >
+    <svg
+      aria-hidden="true"
+      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-3nkws3-MuiSvgIcon-root"
+      data-testid="RemoveCircleOutlineIcon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M7 11v2h10v-2zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
+      />
+    </svg>
+    <h6
+      class="MuiTypography-root MuiTypography-h6 css-1jgmn5n-MuiTypography-root"
+    >
+      No records are Available !!
+    </h6>
+  </div>
+</DocumentFragment>
+`;

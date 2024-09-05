@@ -43,10 +43,8 @@ const BookingModal: React.FC<IProps> = ({
   const [formData, setFormData] = useState({
     vehicle: "",
     fromTime: "",
-    totalHours: 0,
+    totalHours: 1,
   });
-
-  console.log(formData, "formData");
 
   const getVehicles = () => {
     setGetVehicleState("Loading");
@@ -209,6 +207,11 @@ const BookingModal: React.FC<IProps> = ({
             value={formData.totalHours}
             onChange={handleChange}
             required
+            inputProps={{ min: 1 }}
+          error={formData.totalHours < 1}
+          helperText={
+            formData.totalHours < 1 ? "Total hours cannot be less than 1" : ""
+          }
           />
           {isBooking ? (
             <div className="d-flex justify-content-center mb-4">
