@@ -15,12 +15,14 @@ import { useAuth } from "../../../AuthContext.tsx";
 import {
   getDropdownOptions,
   getEndTime,
+  getFormattedDate,
   getTimeInEpoch,
 } from "../../../Helpers/index.ts";
 import * as bookParkingAPI from "../../../APIs/bookParking.ts";
 import { toast } from "react-toastify";
 import * as vehicleAPI from "../../../APIs/driverVehicle.ts";
 import { Spinner } from "react-bootstrap";
+import emailjs from "emailjs-com";
 
 interface IProps {
   open: boolean;
@@ -45,6 +47,49 @@ const BookingModal: React.FC<IProps> = ({
     fromTime: "",
     totalHours: 1,
   });
+
+  const sendEmail = () => {
+    const { fromTime, totalHours } = formData;
+    console.log("before msg");
+
+    const emailMessage = `
+    Hello ${user?.username},
+
+    We are pleased to inform you that your parking slot has been successfully booked. Below are the details of your booking:
+
+    Location: ${name}
+    Slot Number: ${available_slots}
+
+    Booking Details:
+    - Start Time: ${getFormattedDate(getTimeInEpoch(fromTime))}
+    - End Time: ${getFormattedDate(
+      getEndTime(getTimeInEpoch(fromTime), totalHours)
+    )}
+    - Total Price: £${formData.totalHours * selectedParking.price}
+
+    Thank you for choosing our parking service! We look forward to providing you with a hassle-free experience.
+  `;
+
+    const emailParams = {
+      to_name: user?.username,
+      message: emailMessage,
+      email: user?.email,
+    };
+
+    emailjs
+      .send(
+        process.env.REACT_APP_EMAIL_SERVICE_ID!,
+        process.env.REACT_APP_EMAIL_TEMPLATE_ID!,
+        emailParams,
+        process.env.REACT_APP_EMAILJS_USER_ID
+      )
+      .then(() => {
+        toast.success("Email sent successfully!");
+      })
+      .catch(() => {
+        toast.error("Failed to send email.");
+      });
+  };
 
   const getVehicles = () => {
     setGetVehicleState("Loading");
@@ -88,6 +133,7 @@ const BookingModal: React.FC<IProps> = ({
         setIsBooking(false);
         toast.success("Parking booked successfully");
         handleClose();
+        sendEmail();
         successCallBack();
       })
       .catch(() => {
@@ -208,10 +254,10 @@ const BookingModal: React.FC<IProps> = ({
             onChange={handleChange}
             required
             inputProps={{ min: 1 }}
-          error={formData.totalHours < 1}
-          helperText={
-            formData.totalHours < 1 ? "Total hours cannot be less than 1" : ""
-          }
+            error={formData.totalHours < 1}
+            helperText={
+              formData.totalHours < 1 ? "Total hours cannot be less than 1" : ""
+            }
           />
           {isBooking ? (
             <div className="d-flex justify-content-center mb-4">
