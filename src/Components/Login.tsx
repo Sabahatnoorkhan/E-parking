@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Spinner } from "react-bootstrap";
 import "./Login.css";
 import { toast } from "react-toastify";
@@ -18,15 +18,19 @@ const Login = () => {
     loginAPI.POST.service({ username, password })
       .then(({ data }) => {
         const { user_info, access } = data;
-        const {role} = user_info
+        const { role } = user_info;
+        
+        localStorage.setItem("authToken", access);
+        localStorage.setItem("user", JSON.stringify(user_info));
+
         setIsLoading(false);
         login(access, user_info);
 
-        if(role === 'driver'){
-          navigate('/vehicles')
+        if (role === "driver") {
+          navigate("/vehicles");
         }
-        if(role === 'parking_owner'){
-          navigate('/ownerLocations')
+        if (role === "parking_owner") {
+          navigate("/ownerLocations");
         }
       })
       .catch(() => {

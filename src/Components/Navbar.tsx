@@ -7,15 +7,17 @@ const NavbarComponent = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user') || '')
+
   return (
     <Navbar bg="primary" className="fixed-top" data-bs-theme="dark" expand="lg">
       <Container>
         <Navbar.Brand href="#home">Car Parking</Navbar.Brand>
         <Nav className="ml-auto">
-          {user?.role === "parking_owner" && (
+          {loggedInUser?.role === "parking_owner" && (
             <Nav.Link href="/ownerLocations">Owner Locations</Nav.Link>
           )}
-          {user?.role === "driver" && (
+          {loggedInUser?.role === "driver" && (
             <>
               <Nav.Link href="/bookParking">Book Parking</Nav.Link>
               <Nav.Link href="/bookingHistory">Booking History</Nav.Link>

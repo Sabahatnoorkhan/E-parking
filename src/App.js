@@ -12,6 +12,8 @@ import { useAuth } from "./AuthContext.tsx";
 function App() {
   const { user } = useAuth();
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user'))
+
   return (
     <Router>
       <div className="App">
@@ -21,7 +23,7 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           {/* Conditional private routes based on user role */}
-          {user?.role === "driver" ? (
+          {loggedInUser?.role === "driver" ? (
             <>
               <Route
                 path="/bookParking"
@@ -48,7 +50,7 @@ function App() {
                 }
               />
             </>
-          ) : user ? (
+          ) : loggedInUser ? (
             <Route
               path="/ownerLocations"
               element={

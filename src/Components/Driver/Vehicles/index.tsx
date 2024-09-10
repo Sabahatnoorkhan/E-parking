@@ -31,9 +31,11 @@ const Vehicles = () => {
   const [data, setData] = useState<IVehicle[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user') || '')
+
   const getVehicles = () => {
     setPageState("Loading");
-    vehicleAPI.GET.service(user?.user_id!)
+    vehicleAPI.GET.service(loggedInUser?.user_id!)
       .then(({ data }) => {
         setData(data);
         setPageState("Data");

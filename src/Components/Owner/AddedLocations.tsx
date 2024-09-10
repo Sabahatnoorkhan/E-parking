@@ -10,7 +10,7 @@ import {
   Paper,
   Box,
   Typography,
-  Button
+  Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
@@ -23,8 +23,8 @@ import ErrorPage from "../ErrorState.tsx";
 import LoaderPage from "../LoadingState.tsx";
 import EmptyState from "../EmptyState.tsx";
 import LocationModal from "./AddEditLocationModal.tsx";
-import * as myParkingsAPI from "../../APIs/getOwnerParking.ts"
-import * as parkingsAPI from "../../APIs/parking.ts"
+import * as myParkingsAPI from "../../APIs/getOwnerParking.ts";
+import * as parkingsAPI from "../../APIs/parking.ts";
 import { useAuth } from "../../AuthContext.tsx";
 import { toast } from "react-toastify";
 import { Spinner } from "react-bootstrap";
@@ -32,44 +32,50 @@ import { Spinner } from "react-bootstrap";
 const OwnerLocation = () => {
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [deleteId, setDeleteId] = useState<string>('')
+  const [deleteId, setDeleteId] = useState<string>("");
   const [pageState, setPageState] = useState<PageState>("Initial");
   const [data, setData] = useState<IParkingInfo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedLocation, setSelectedLocation] = useState<IParkingInfo>();
   const [modalState, setModalState] = useState<LocationModalState>("Add");
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem("user") || "");
+
   const getMyParkings = () => {
-    setPageState('Loading')
-    myParkingsAPI.GET.service(user?.user_id!).then(({data}) => {
-      setData(data);
-      setPageState('Data');
-    }).catch(() => {
-      setPageState('Error');
-    })
-  }
+    setPageState("Loading");
+    myParkingsAPI.GET.service(loggedInUser?.user_id!)
+      .then(({ data }) => {
+        setData(data);
+        setPageState("Data");
+      })
+      .catch(() => {
+        setPageState("Error");
+      });
+  };
 
   const deleteParking = (parkingId: string) => {
     setIsDeleting(true);
     setDeleteId(parkingId);
-    parkingsAPI.Delete.service(parkingId).then(() => {
-      setIsDeleting(false);
-      setDeleteId('');
-      toast.success('Successfully deleted the parking space');
-      getMyParkings();
-    }).catch(() => {
-      setDeleteId('')
-      setIsDeleting(false);
-      toast.error('Something went wrong');
-    })
-  }
+    parkingsAPI.Delete.service(parkingId)
+      .then(() => {
+        setIsDeleting(false);
+        setDeleteId("");
+        toast.success("Successfully deleted the parking space");
+        getMyParkings();
+      })
+      .catch(() => {
+        setDeleteId("");
+        setIsDeleting(false);
+        toast.error("Something went wrong");
+      });
+  };
 
   useEffect(() => {
     getMyParkings();
-  }, [])
+  }, []);
 
   const handleAddLocationClick = () => {
-    setModalState('Add');
+    setModalState("Add");
     setSelectedLocation(undefined);
     setIsModalOpen(true);
   };
@@ -130,7 +136,15 @@ const OwnerLocation = () => {
             </TableHead>
             <TableBody>
               {data.map((row) => {
-                const {id, name, location, latitude, longitude, price, total_slots} = row
+                const {
+                  id,
+                  name,
+                  location,
+                  latitude,
+                  longitude,
+                  price,
+                  total_slots,
+                } = row;
                 return (
                   <TableRow key={id}>
                     <TableCell>{name}</TableCell>
@@ -140,32 +154,41 @@ const OwnerLocation = () => {
                     <TableCell>{latitude}</TableCell>
                     <TableCell>{longitude}</TableCell>
                     <TableCell>
-                      {isDeleting && id === deleteId ? <Spinner animation="border" variant="alert" /> : <DeleteForeverOutlinedIcon sx={{ color: "red" }} onClick={() => deleteParking(id)}/>}
+                      {isDeleting && id === deleteId ? (
+                        <Spinner animation="border" variant="alert" />
+                      ) : (
+                        <DeleteForeverOutlinedIcon
+                          sx={{ color: "red" }}
+                          onClick={() => deleteParking(id)}
+                        />
+                      )}
                     </TableCell>
                     <TableCell>
                       <EditIcon
                         sx={{ color: "green" }}
                         onClick={() => {
                           setSelectedLocation(row);
-                          setModalState('Edit');
+                          setModalState("Edit");
                           setIsModalOpen(true);
                         }}
                       />
                     </TableCell>
                   </TableRow>
-                )
+                );
               })}
             </TableBody>
           </Table>
         </TableContainer>
       )}
-      {isModalOpen && <LocationModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        successCallBack={getMyParkings}
-        initialData={selectedLocation}
-        isEditMode={modalState === "Edit"}
-      />}
+      {isModalOpen && (
+        <LocationModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          successCallBack={getMyParkings}
+          initialData={selectedLocation}
+          isEditMode={modalState === "Edit"}
+        />
+      )}
     </>
   );
 };
