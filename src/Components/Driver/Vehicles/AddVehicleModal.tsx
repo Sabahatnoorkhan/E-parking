@@ -34,12 +34,15 @@ const AddVehicleModal: React.FC<IProps> = ({
     car_model: "",
   });
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user') || '')
+
+
   const handleAddingVehicle = () => {
     setIsAdding(true);
     vehicleAPI.POST.service({
       plate_number: vehicleData.plate_number,
       car_model: vehicleData.car_model,
-      user: user?.user_id!,
+      user: loggedInUser?.user_id!,
     })
       .then(() => {
         setIsAdding(false);

@@ -48,12 +48,14 @@ const BookingModal: React.FC<IProps> = ({
     totalHours: 1,
   });
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user') || '')
+
   const sendEmail = () => {
     const { fromTime, totalHours } = formData;
     console.log("before msg");
 
     const emailMessage = `
-    Hello ${user?.username},
+    Hello ${loggedInUser?.username},
 
     We are pleased to inform you that your parking slot has been successfully booked. Below are the details of your booking:
 
@@ -71,9 +73,9 @@ const BookingModal: React.FC<IProps> = ({
   `;
 
     const emailParams = {
-      to_name: user?.username,
+      to_name: loggedInUser?.username,
       message: emailMessage,
-      email: user?.email,
+      email: loggedInUser?.email,
     };
 
     emailjs
@@ -93,7 +95,7 @@ const BookingModal: React.FC<IProps> = ({
 
   const getVehicles = () => {
     setGetVehicleState("Loading");
-    vehicleAPI.GET.service(user?.user_id!)
+    vehicleAPI.GET.service(loggedInUser?.user_id!)
       .then(({ data }) => {
         setVehicles(data);
         setGetVehicleState("Data");
@@ -121,7 +123,7 @@ const BookingModal: React.FC<IProps> = ({
     e.preventDefault();
     const { fromTime, vehicle, totalHours } = formData;
     const payload = {
-      user: user?.user_id!,
+      user: loggedInUser?.user_id!,
       parking_space: id,
       start_time: getTimeInEpoch(fromTime),
       end_time: getEndTime(getTimeInEpoch(fromTime), totalHours),

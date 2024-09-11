@@ -9,8 +9,10 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const { authToken } = useAuth();
 
+  const token = authToken || localStorage.getItem('authToken')
+
   // If the user is not authenticated, navigate to the login page
-  if (!authToken) {
+  if (!token) {
     return <Navigate to="/login" />;
   }
 

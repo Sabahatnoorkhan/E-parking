@@ -42,11 +42,13 @@ const LocationModal: React.FC<IProps> = ({
     longitude: initialData?.longitude || 0,
   });
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user') || '')
+
   const addParking = () => {
     setIsAddingOrEditing(true);
     parkingsAPI.POST.service({
       ...locationData,
-      owner: user?.user_id!,
+      owner: loggedInUser?.user_id!,
       available_slots: locationData.total_slots,
     })
       .then(() => {
@@ -66,7 +68,7 @@ const LocationModal: React.FC<IProps> = ({
     parkingsAPI.PUT.service(
       {
         ...locationData,
-        owner: user?.user_id!,
+        owner: loggedInUser?.user_id!,
       },
       initialData?.id || ""
     )

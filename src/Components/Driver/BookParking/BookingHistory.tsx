@@ -25,9 +25,11 @@ const BookingHistory = () => {
   const [pageState, setPageState] = useState<PageState>('Initial');
   const [data, setData] = useState<IDriverBooking[]>([]);
 
+  const loggedInUser = user || JSON.parse(localStorage.getItem('user') || '')
+
   const getBookingHistory = () => {
     setPageState('Loading');
-    bookingHistoryAPI.GET.service(user?.user_id!).then(({data}) => {
+    bookingHistoryAPI.GET.service(loggedInUser?.user_id!).then(({data}) => {
       setPageState('Data');
       setData(data);
     }).catch(() => {
